@@ -6,13 +6,13 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-	<main class="bg-gray-100 antialiased">
+	<body class="bg-gray-100 antialiased">
 
     <!-- Contenedor principal -->
     <div class="min-h-screen flex items-center justify-center p-4">
 
-        <!-- Contenedor del formulario (se oculta al enviar) -->
-        <div id="formContainer" class="w-full max-w-md">
+        <!-- Contenedor del formulario -->
+        <div class="w-full max-w-md">
             <!-- Tarjeta principal -->
             <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
                 
@@ -37,10 +37,9 @@ import Layout from '../layouts/Layout.astro';
                 <!-- 
                   Formulario de eliminación
                   Configurado para Netlify Forms.
-                  Astro generará esto como HTML estático, y Netlify lo detectará
-                  perfectamente en el momento del despliegue.
+                  Sin JS, Netlify gestionará el envío y la recarga de la página.
                 -->
-                <form id="deleteForm" class="space-y-4" name="delete-request" method="POST" data-netlify="true">
+                <form class="space-y-4" name="delete-request" method="POST" data-netlify="true">
                     
                     <!-- Campo de Email -->
                     <div>
@@ -75,7 +74,7 @@ import Layout from '../layouts/Layout.astro';
 
                     <!-- Botón de envío -->
                     <div>
-                        <button type="submit" id="submitButton"
+                        <button type="submit"
                                 class="w-full bg-red-600 text-white font-semibold py-2.5 px-4 rounded-md
                                        hover:bg-red-700 focus:outline-none focus:ring-2 
                                        focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
@@ -83,11 +82,6 @@ import Layout from '../layouts/Layout.astro';
                         </button>
                     </div>
                 </form>
-
-                <!-- Mensaje de error (se muestra si falla el envío) -->
-                <div id="errorMessage">
-                    Ocurrió un error al enviar tu solicitud. Por favor, inténtalo de nuevo más tarde.
-                </div>
 
             </div>
             
@@ -97,90 +91,17 @@ import Layout from '../layouts/Layout.astro';
             </p>
         </div>
 
-        <!-- Mensaje de éxito (oculto por defecto) -->
-        <div id="successMessage" class="hidden w-full max-w-md bg-white p-8 rounded-xl shadow-lg text-center">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Solicitud Recibida</h2>
-            <p class="text-gray-600">
-                Hemos recibido tu solicitud para eliminar tu cuenta. Este proceso puede tardar hasta 48 horas en completarse.
-            </p>
-            <p class="text-gray-600 mt-3">
-                Recibirás una confirmación final en tu correo electrónico una vez que el proceso haya finalizado.
-            </p>
-            <p class="text-gray-600 mt-4">
-                Lamentamos verte partir.
-            </p>
-        </div>
+        <!-- Los mensajes de éxito y error se eliminaron 
+             ya que Netlify manejará la redirección -->
 
     </div>
 
     <!-- 
-      SCRIPT DEL LADO DEL CLIENTE
-      Usamos 'is:inline' para decirle a Astro que envíe este script
-      directamente al navegador, en lugar de intentar procesarlo
-      en el servidor.
+      SCRIPT DEL LADO DEL CLIENTE ELIMINADO
+      Ya no se necesita JavaScript.
     -->
-    <script is:inline>
-      // Espera a que el contenido del DOM esté cargado
-      document.addEventListener('DOMContentLoaded', () => {
-        
-        // Obtener los elementos del DOM
-        const deleteForm = document.getElementById('deleteForm');
-        const formContainer = document.getElementById('formContainer');
-        const successMessage = document.getElementById('successMessage');
-        const submitButton = document.getElementById('submitButton');
-        const errorMessage = document.getElementById('errorMessage');
 
-        // Escuchar el evento 'submit' del formulario
-        deleteForm.addEventListener('submit', async (event) => {
-          // Prevenir el envío real del formulario (lo manejaremos con fetch)
-          event.preventDefault(); 
-
-          // Deshabilitar el botón y mostrar "Procesando..."
-          submitButton.disabled = true;
-          submitButton.textContent = 'Procesando...';
-          submitButton.classList.add('opacity-75', 'cursor-not-allowed');
-          errorMessage.style.display = 'none'; // Ocultar errores previos
-
-          // --- ENVÍO REAL A Netlify Forms (AJAX) ---
-          
-          try {
-            const form = event.target;
-            // Netlify necesita los datos codificados en URL en el body
-            const data = new URLSearchParams(new FormData(form)).toString();
-            
-            const response = await fetch(form.action, { // form.action estará vacío o será '/', enviando a la misma página
-              method: form.method,
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded' // Requerido por Netlify para AJAX
-              },
-              body: data
-            });
-
-            // Comprobar si Netlify aceptó la solicitud
-            if (response.ok) {
-              // Éxito: Ocultar el formulario y mostrar el mensaje de éxito
-              formContainer.classList.add('hidden');
-              successMessage.classList.remove('hidden');
-            } else {
-              // Error: El servidor respondió con un error (ej. 404, 500)
-              throw new Error('Falló el envío al servidor');
-            }
-
-          } catch (error) {
-            // Error: Falló la red o hubo un problema en el fetch
-            console.error('Error al enviar el formulario:', error);
-            errorMessage.style.display = 'block'; // Mostrar mensaje de error
-
-            // Reactivar el botón para que el usuario pueda reintentar
-            submitButton.disabled = false;
-            submitButton.textContent = 'Solicitar Eliminación Permanente';
-            submitButton.classList.remove('opacity-75', 'cursor-not-allowed');
-          }
-        });
-      });
-    </script>
-
-</main>
+</body>
 </Layout>
 
 
